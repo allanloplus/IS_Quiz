@@ -29,7 +29,7 @@
   --nav-bg: rgb(237 242 244 / .86);
   --shadow: 0 1px 2px rgb(21 34 61 / .06), 0 10px 28px rgb(21 34 61 / .08);
   --c-net: #2b59c3; --c-os: #6b4bb8; --c-cloud: #1b84b0; --c-devops: #25618f;
-  --c-dev: #0d8466; --c-sec: #c8343f; --c-db: #b25a24; --c-itsm: #b8336a;
+  --c-dev: #0d8466; --c-sec: #c8343f; --c-db: #b25a24; --c-itsm: #b8336a; --c-ai: #5f7d16;
   /* night market (one deliberate visual world, same in both themes) */
   --nm-bg: #1b1233; --nm-bg-2: #271a49; --nm-card: #2f2157; --nm-line: #4a3a7c;
   --nm-text: #fff4e4; --nm-dim: #cbbfe6; --nm-lantern: #ff5b4d; --nm-gold: #ffcb47; --nm-mint: #5ee0b3;
@@ -50,7 +50,7 @@
     --paper: #eef0ea; --paper-ink: #1d2433; --nav-bg: rgb(11 19 34 / .86);
     --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 12px 30px rgb(0 0 0 / .35);
     --c-net: #7aa2ff; --c-os: #b39cff; --c-cloud: #5cc6ef; --c-devops: #74aee0;
-    --c-dev: #45d1a6; --c-sec: #ff7a80; --c-db: #f19a62; --c-itsm: #f27fb0;
+    --c-dev: #45d1a6; --c-sec: #ff7a80; --c-db: #f19a62; --c-itsm: #f27fb0; --c-ai: #b2d46a;
     color-scheme: dark;
   }
 }
@@ -62,7 +62,7 @@
   --paper: #eef0ea; --paper-ink: #1d2433; --nav-bg: rgb(11 19 34 / .86);
   --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 12px 30px rgb(0 0 0 / .35);
   --c-net: #7aa2ff; --c-os: #b39cff; --c-cloud: #5cc6ef; --c-devops: #74aee0;
-  --c-dev: #45d1a6; --c-sec: #ff7a80; --c-db: #f19a62; --c-itsm: #f27fb0;
+  --c-dev: #45d1a6; --c-sec: #ff7a80; --c-db: #f19a62; --c-itsm: #f27fb0; --c-ai: #b2d46a;
   color-scheme: dark;
 }
 
@@ -285,7 +285,7 @@ main { display: block; }
 @media (max-width: 1040px) { .modes { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 520px) { .modes { grid-template-columns: 1fr; } .mode { min-height: 220px; } .mode img { height: 130px; } }
 
-.cats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.cats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .cat {
   display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 12px; align-items: center; padding: 14px; border-radius: var(--r-m);
   background: var(--surface); border: 1px solid var(--line); text-decoration: none; color: var(--ink); cursor: pointer; text-align: left;
@@ -296,8 +296,7 @@ main { display: block; }
 .cat b { display: block; font-size: 16px; line-height: 1.35; }
 .cat span { display: block; font-size: 12px; color: var(--ink-3); }
 .cat .en { font: 600 11px/1.4 var(--f-tech); letter-spacing: .06em; color: var(--ink-3); }
-@media (max-width: 1040px) { .cats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 520px) { .cats { grid-template-columns: 1fr; } }
+@media (max-width: 760px) { .cats { grid-template-columns: 1fr; } }
 
 .crew { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .crew article { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 20px; align-items: end; padding: 22px 22px 0; border-radius: var(--r-l); background: var(--surface); border: 1px solid var(--line); overflow: hidden; }
@@ -509,11 +508,11 @@ main { display: block; }
 .progress-line .pl i { display: block; height: 100%; background: var(--teal); }
 
 .stamp-svg { display: block; }
-.stamp-book { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; padding: 18px; background: var(--paper); border-radius: var(--r-l); border: 1px solid rgb(29 36 51 / .12); }
+.stamp-book { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding: 18px; background: var(--paper); border-radius: var(--r-l); border: 1px solid rgb(29 36 51 / .12); }
 .stamp-book .slot { aspect-ratio: 1; display: grid; place-items: center; border-radius: 50%; border: 2px dashed rgb(29 36 51 / .15); }
 .stamp-book .slot.on { border-color: transparent; }
 .stamp-book .slot svg { width: 100%; height: auto; }
-@media (max-width: 520px) { .stamp-book { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; padding: 10px; } }
+@media (max-width: 520px) { .stamp-book { gap: 8px; padding: 12px; } }
 .stamp-in { animation: thud .6s cubic-bezier(.2, .9, .3, 1.3) both; }
 @keyframes thud { 0% { transform: scale(2.2) rotate(-18deg); opacity: 0; } 60% { opacity: 1; } 100% { transform: scale(1) rotate(-8deg); opacity: 1; } }
 

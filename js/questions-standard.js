@@ -121,7 +121,7 @@ window.AIT_DATA.questions.push(
     tip: "建立網路流量基準線（Baseline）是偵測異常的前提。稽核時可詢問：監控機制是否會針對非上班時段、大量上傳至陌生目的地的流量發出告警？"
   },
   {
-    id: "STD-08", src: "std", cat: "db", lv: 1,
+    id: "STD-08", src: "std", cat: "ai", lv: 1,
     q: "In IT consulting, what is the primary role of artificial intelligence (AI) and machine learning (ML) technologies?",
     qz: "在 IT 顧問服務中，人工智慧（AI）與機器學習（ML）技術的主要角色是什麼？",
     o: [

@@ -46,6 +46,7 @@
   const ROUTE = D.route;
   const idsBy = f => QS.filter(f).map(q => q.id);
   const countCat = (id, src) => QS.filter(q => q.cat === id && (!src || q.src === src)).length;
+  const N_STD = QS.filter(q => q.src === 'std').length, N_AI = QS.length - N_STD, N_ALL = QS.length, N_ST = ROUTE.length;
 
   const S = {
     quiz: null, result: null, after: null, modal: null, timer: null, daily: null, certUrl: null, certNo: null,
@@ -75,7 +76,7 @@
     mute: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10v4h4l5 4V6L8 10z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>',
     arrow: '<svg viewBox="0 0 46 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9h40M34 2l8 7-8 7"/></svg>'
   };
-  /* 8 個車站圖示（48×48） */
+  /* 車站圖示（48×48） */
   const ICON = {
     net: '<path d="M24 3v6M19.5 9h9l-1.2 6h-6.6zM18.5 15h11l-1.2 6h-8.6zM17.5 21h13l-1.2 6H18.7zM16.5 27h15l-1.2 6H17.7zM15.5 33h17v4h-17zM12 37h24v7H12z"/>',
     os: '<rect x="11" y="5" width="26" height="38" rx="3"/><path d="M11 17.5h26M11 30.5h26M23 11h9M23 24h9M23 37h9"/><circle cx="17" cy="11" r="1.6"/><circle cx="17" cy="24" r="1.6"/><circle cx="17" cy="37" r="1.6"/>',
@@ -84,7 +85,8 @@
     cloud: '<path d="M14 32h21a8 8 0 0 0 1-15.9A11 11 0 0 0 15 14.5 8.8 8.8 0 0 0 14 32z"/><path d="M17 38h14M17 43h14M24 32v11"/>',
     itsm: '<circle cx="16" cy="15" r="7"/><path d="M36 7a8 8 0 1 0 5 13 9 9 0 0 1-5-13z"/><path d="M4 31c4 0 4 3 8 3s4-3 8-3 4 3 8 3 4-3 8-3 4 3 8 3M4 40c4 0 4 3 8 3s4-3 8-3 4 3 8 3 4-3 8-3 4 3 8 3"/>',
     devops: '<path d="M5 31h38l-5 10H10z"/><path d="M10 21h9v10h-9zM19 21h9v10h-9zM28 21h9v10h-9zM14.5 11h9v10h-9zM23.5 11h9v10h-9z"/>',
-    sec: '<path d="M3 43l13-20 7 9 7-10 15 21z"/><path d="M24 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6z"/><path d="M21.5 11l2 2 3.5-4"/>'
+    sec: '<path d="M3 43l13-20 7 9 7-10 15 21z"/><path d="M24 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6z"/><path d="M21.5 11l2 2 3.5-4"/>',
+    ai: '<circle cx="9" cy="15" r="4"/><circle cx="9" cy="33" r="4"/><circle cx="24" cy="8" r="4"/><circle cx="24" cy="24" r="4"/><circle cx="24" cy="40" r="4"/><circle cx="39" cy="24" r="4"/><path d="M12.5 13l8-3.5M13 16.5l7 5.5M12 18l9.5 18.5M12 30l9.5-18.5M13 31.5l7-5.5M12.5 35l8 3.5M27.5 10l8.5 11M28 24h7M27.5 38l8.5-11"/>'
   };
   const catIcon = id => `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[id]}</svg>`;
   const trainSVG = '<svg class="train" viewBox="0 0 44 22" aria-hidden="true"><path d="M3 15h31c4.5 0 7-1.8 7-3.8C41 8 34.5 4 24.5 4H8C5 4 3 6 3 8.5z" fill="var(--surface)" stroke="currentColor" stroke-width="2"/><path d="M8 7.5h12v3.5H8z" fill="currentColor"/><path d="M24 7.5c4.5 0 9 1.6 11.5 3.5H24z" fill="var(--teal)"/><path d="M3 18.5h38" stroke="var(--sun)" stroke-width="2.4" stroke-linecap="round"/></svg>';
@@ -152,7 +154,7 @@
 
   /* ── 地圖 ───────────────────────────── */
   const proj = (lon, lat) => [(lon - M.proj.lon0) * M.proj.k * M.proj.s, (M.proj.lat0 - lat) * M.proj.s];
-  const LABEL_SIDE = { net: 'r', os: 'l', dev: 'l', db: 'r', cloud: 'l', itsm: 'r', devops: 'r', sec: 'r' };
+  const LABEL_SIDE = { net: 'r', os: 'l', dev: 'l', db: 'r', cloud: 'l', itsm: 'r', ai: 'r', devops: 'r', sec: 'r' };
   const LABEL_DY = { os: -12 };
   function smoothPath(pts) {
     if (pts.length < 2) return '';
@@ -239,7 +241,7 @@
 
   /* ── 共用片段 ───────────────────────────── */
   const catChip = id => `<span class="chip chip-cat" style="--cc:var(--c-${id})">${esc(CAT[id].zh)}</span>`;
-  const srcChip = q => `<span class="chip">${q.src === 'std' ? '標準 30 題' : 'AI 生成題'}</span>`;
+  const srcChip = q => `<span class="chip">${q.src === 'std' ? `標準 ${N_STD} 題` : 'AI 生成題'}</span>`;
   const isoChip = c => `<span class="chip"><b>A.${c}</b>&nbsp;${esc(D.iso[c][0])}・${esc(D.iso[c][1])}</span>`;
   const initial = name => { const s = String(name || '').trim(); return s ? s[0].toUpperCase() : '?'; };
 
@@ -275,7 +277,7 @@
           <div><dt>Company 公司／學校</dt><dd>${esc(p?.company || '—')}</dd></div>
           <div><dt>Email</dt><dd>${esc(p?.email ? maskEmail(p.email) : '—')}</dd></div>
         </dl>
-        <div class="code">${no}・台北101 → 玉山・8 STOPS</div>
+        <div class="code">${no}・台北101 → 玉山・${N_ST} STOPS</div>
       </div>
       <div class="stub"><b>ADMIT ONE</b><div class="barcode" aria-hidden="true"></div></div>
     </div>`;
@@ -302,20 +304,20 @@
       <section class="hero">
         <div class="hero-copy">
           <h1><span class="en">IT Fundamentals Quest for ISMS Professionals</span>Allan'S<br>IT知識測驗</h1>
-          <p class="lead">用測驗引導學習。100 題中英雙語題庫、8 大 IT 知識領域，從台北101出發，一站一站環島闖關，最後登上玉山。</p>
+          <p class="lead">用測驗引導學習。${N_ALL} 題中英雙語題庫、${N_ST} 大 IT 知識領域，從台北101出發，一站一站環島闖關，最後登上玉山。</p>
           <div class="hero-stats">
-            <div><b>100</b><span>雙語題庫（標準 30＋AI 70）</span></div>
-            <div><b>8</b><span>知識領域・8 個車站</span></div>
+            <div><b>${N_ALL}</b><span>雙語題庫（標準 ${N_STD}＋AI ${N_AI}）</span></div>
+            <div><b>${N_ST}</b><span>知識領域・${N_ST} 個車站</span></div>
             <div><b>≥${PASS}</b><span>分才算通過</span></div>
           </div>
           <div class="btn-row">
             ${p ? '<a class="btn btn-ink" href="#quest">繼續環島旅程</a>' : '<a class="btn btn-ink" href="#profile">領取環島車票</a>'}
             <a class="btn btn-line" href="#classic">直接開始測驗</a>
           </div>
-          <p class="small muted">${p ? `歡迎回來，${esc(p.name)}。目前已蓋 ${n} / 8 枚車站紀念章。` : '講師 Allan顧問、AI 小助理阿拉蕾全程陪你練習。'}</p>
+          <p class="small muted">${p ? `歡迎回來，${esc(p.name)}。目前已蓋 ${n} / ${N_ST} 枚車站紀念章。` : '講師 Allan顧問、AI 小助理阿拉蕾全程陪你練習。'}</p>
         </div>
         <div class="hero-map">${mapSVG()}<img class="allan" src="${img('allan-full')}" alt="Allan顧問">
-          <div class="legend"><b>Route 環島路線</b><span>台北101 → 玉山，共 8 站</span></div></div>
+          <div class="legend"><b>Route 環島路線</b><span>台北101 → 玉山，共 ${N_ST} 站</span></div></div>
       </section>
 
       <section class="panel daily" id="daily">${dailyHTML()}</section>
@@ -329,14 +331,14 @@
         <div class="section-head"><div><p class="eyebrow">Choose your way</p><h2 id="h-modes">選一種方式開始</h2></div></div>
         <div class="modes">
           <a class="mode" href="#classic"><span class="tag">Classic</span><div><h3>經典測驗</h3><p>傳統一題一題作答，可選即時解說或交卷後檢討。</p></div><span class="go">開始 →</span><img src="${img('allan-point')}" alt=""></a>
-          <a class="mode" href="#quest"><span class="tag">Island Quest</span><div><h3>環島闖關</h3><p>8 個車站對應 8 大領域，每站 ≥${PASS} 分才能蓋章前進。</p></div><span class="go">出發 →</span><img src="${img('arale-present')}" alt=""></a>
+          <a class="mode" href="#quest"><span class="tag">Island Quest</span><div><h3>環島闖關</h3><p>${N_ST} 個車站對應 ${N_ST} 大領域，每站 ≥${PASS} 分才能蓋章前進。</p></div><span class="go">出發 →</span><img src="${img('arale-present')}" alt=""></a>
           <a class="mode mode-night" href="#game"><span class="tag">Night Market</span><div><h3>夜市搶答</h3><p>限時搶答、珍奶生命值、連續答對加分，邊玩邊學。</p></div><span class="go">開吃 →</span><img src="${img('arale-cheer')}" alt=""></a>
-          <a class="mode" href="#library"><span class="tag">Library</span><div><h3>知識圖書館</h3><p>100 題完整解說與 ISO 27001 對應，還有你的錯題本。</p></div><span class="go">翻閱 →</span><img src="${img('allan-think')}" alt=""></a>
+          <a class="mode" href="#library"><span class="tag">Library</span><div><h3>知識圖書館</h3><p>${N_ALL} 題完整解說與 ISO 27001 對應，還有你的錯題本。</p></div><span class="go">翻閱 →</span><img src="${img('allan-think')}" alt=""></a>
         </div>
       </section>
 
       <section aria-labelledby="h-cats">
-        <div class="section-head"><div><p class="eyebrow">8 Domains · 8 Stations</p><h2 id="h-cats">8 大知識領域</h2></div><p class="small muted">點選任一領域，直接進行類別測驗。</p></div>
+        <div class="section-head"><div><p class="eyebrow">${N_ST} Domains · ${N_ST} Stations</p><h2 id="h-cats">${N_ST} 大知識領域</h2></div><p class="small muted">點選任一領域，直接進行類別測驗。</p></div>
         <div class="cats">${ROUTE.map((id, i) => { const c = CAT[id]; return `<button class="cat" style="--cc:var(--c-${id})" data-act="cat-setup" data-id="${id}"><span class="ico">${catIcon(id)}</span><span><span class="en">${i + 1}. ${esc(c.en)}</span><b>${esc(c.zh)}</b><span>${esc(c.station.label)}站・${countCat(id)} 題（標準 ${countCat(id, 'std')}／AI ${countCat(id, 'ai')}）</span></span></button>`; }).join('')}</div>
       </section>
 
@@ -445,9 +447,9 @@
 
   /* classic setup */
   const SRC_INFO = {
-    std: ['Standard 30', '標準 30 題', '「IS 專業 30 題」英文原題，附專業中文翻譯'],
-    ai: ['AI Generated 70', 'AI 生成 70 題', '依 8 大類補足 IT 基本功的情境題'],
-    random: ['Random', '隨機出題', '從 100 題中隨機抽題，每次都不一樣'],
+    std: [`Standard ${N_STD}`, `標準 ${N_STD} 題`, '「IS 專業 30 題」英文原題，附專業中文翻譯'],
+    ai: [`AI Generated ${N_AI}`, `AI 生成 ${N_AI} 題`, `依 ${N_ST} 大類補足 IT 基本功與 AI 治理的情境題`],
+    random: ['Random', '隨機出題', `從 ${N_ALL} 題中隨機抽題，每次都不一樣`],
     cat: ['By Category', '依類別出題', '選擇一個或多個知識領域']
   };
   function setupIds(s) {
@@ -458,14 +460,14 @@
     return idsBy(q => s.cats.includes(q.cat));
   }
   function setupCount(s) {
-    if (s.src === 'std') return 30;
-    if (s.src === 'ai') return 70;
+    if (s.src === 'std') return N_STD;
+    if (s.src === 'ai') return N_AI;
     if (s.src === 'random') return s.count;
     return QS.filter(q => s.cats.includes(q.cat)).length;
   }
   function setupLabel(s, n) {
-    if (s.src === 'std') return { zh: '標準 30 題測驗', en: 'Standard 30-Question Test' };
-    if (s.src === 'ai') return { zh: 'AI 生成 70 題測驗', en: 'AI-Generated 70-Question Test' };
+    if (s.src === 'std') return { zh: `標準 ${N_STD} 題測驗`, en: `Standard ${N_STD}-Question Test` };
+    if (s.src === 'ai') return { zh: `AI 生成 ${N_AI} 題測驗`, en: `AI-Generated ${N_AI}-Question Test` };
     if (s.src === 'random') return { zh: `隨機 ${n} 題測驗`, en: `Random ${n}-Question Test` };
     const cs = ROUTE.filter(id => s.cats.includes(id));
     return { zh: `類別測驗：${cs.map(id => CAT[id].zh).join('、')}`, en: `Category Test: ${cs.map(id => CAT[id].en).join(', ')}` };
@@ -508,14 +510,14 @@
     const qp = questProgress(), n = stampCount(), first = ROUTE.findIndex(id => !qp[id]?.passed);
     const grand = store.get('grand', null);
     return `<div class="wrap page">
-      <div class="page-head"><p class="eyebrow">Island Quest</p><h1>台灣科技環島</h1><p class="muted">8 個車站對應 8 大知識領域。每一站都要答對 ${PASS}% 以上（≥${PASS} 分）才能蓋紀念章、解鎖下一站。從台北101出發，最後登上玉山！</p></div>
-      <div class="progress-line"><span>已蓋章 <b class="num">${n}</b> / 8</span><div class="pl"><i style="width:${(n / 8) * 100}%"></i></div><span>${n === 8 ? '環島完成！' : `下一站：${CAT[ROUTE[first]].station.label}`}</span></div>
+      <div class="page-head"><p class="eyebrow">Island Quest</p><h1>台灣科技環島</h1><p class="muted">${N_ST} 個車站對應 ${N_ST} 大知識領域。每一站都要答對 ${PASS}% 以上（≥${PASS} 分）才能蓋紀念章、解鎖下一站。從台北101出發，最後登上玉山！</p></div>
+      <div class="progress-line"><span>已蓋章 <b class="num">${n}</b> / ${N_ST}</span><div class="pl"><i style="width:${(n / N_ST) * 100}%"></i></div><span>${n === N_ST ? '環島完成！' : `下一站：${CAT[ROUTE[first]].station.label}`}</span></div>
       <div class="quest">
         <div class="quest-map">${mapSVG({ interactive: true })}<img class="arale" src="${img('arale-wave')}" alt=""></div>
         <div style="display:grid;gap:16px">
-          ${n === 8 ? `<div class="panel" style="display:grid;gap:10px"><p class="eyebrow">All 8 stops</p><h2 style="font:400 26px/1.25 var(--f-display)">恭喜完成台灣科技環島！</h2><p class="muted">你已通過全部 8 個車站，從網路、系統一路到資安高峰。</p><div class="btn-row">${grand ? `<button class="btn btn-sun" data-act="cert" data-no="${grand}">查看環島制霸證明</button>` : ''}</div></div>` : ''}
+          ${n === N_ST ? `<div class="panel" style="display:grid;gap:10px"><p class="eyebrow">All ${N_ST} stops</p><h2 style="font:400 26px/1.25 var(--f-display)">恭喜完成台灣科技環島！</h2><p class="muted">你已通過全部 ${N_ST} 個車站，從網路、系統一路到資安高峰。</p><div class="btn-row">${grand ? `<button class="btn btn-sun" data-act="cert" data-no="${grand}">查看環島制霸證明</button>` : ''}</div></div>` : ''}
           <div class="stations">${ROUTE.map((id, i) => {
-            const c = CAT[id], r = qp[id] || {}, locked = i > (first === -1 ? 8 : first);
+            const c = CAT[id], r = qp[id] || {}, locked = !r.passed && i > (first === -1 ? N_ST : first);
             return `<button class="station" style="--cc:var(--c-${id})" data-act="station" data-id="${id}" ${locked ? 'aria-disabled="true"' : ''}>
               ${stampSVG(id, { inked: !!r.passed, date: r.at ? ymd(new Date(r.at)) : '', size: 76, cls: 'stamp-sm' })}
               <span><b>${i + 1}. ${esc(c.station.label)}</b><span>${esc(c.zh)}・${countCat(id)} 題</span></span>
@@ -526,9 +528,9 @@
   };
   function stationModal(id) {
     const qp = questProgress(), i = ROUTE.indexOf(id), first = ROUTE.findIndex(x => !qp[x]?.passed);
-    if (i > (first === -1 ? 8 : first)) { toast(`完成上一站「${CAT[ROUTE[i - 1]].station.label}」後，才能解鎖這一站喔！`); return; }
+    if (!qp[id]?.passed && i > (first === -1 ? N_ST : first)) { toast(`完成上一站「${CAT[ROUTE[i - 1]].station.label}」後，才能解鎖這一站喔！`); return; }
     const c = CAT[id], st = c.station, r = qp[id] || {};
-    openModal(`<div class="modal-head"><p class="eyebrow">Stop ${i + 1} / 8 · ${esc(st.en)}</p><button class="icon-btn x" data-act="m-close" aria-label="關閉">${I.close}</button></div>
+    openModal(`<div class="modal-head"><p class="eyebrow">Stop ${i + 1} / ${N_ST} · ${esc(st.en)}</p><button class="icon-btn x" data-act="m-close" aria-label="關閉">${I.close}</button></div>
       <div class="st-intro" style="--cc:var(--c-${id})">
         ${stampSVG(id, { inked: !!r.passed, date: r.at ? ymd(new Date(r.at)) : '', size: 160, cls: 'stamp-lg' })}
         <div class="txt"><h2>${i + 1}. ${esc(st.label)}</h2><div class="qmeta">${catChip(id)}<span class="chip">${countCat(id)} 題（標準 ${countCat(id, 'std')}／AI ${countCat(id, 'ai')}）</span>${r.best != null ? `<span class="chip">最佳成績 ${r.best}</span>` : ''}</div>
@@ -541,9 +543,9 @@
   /* night market game */
   VIEWS.game = () => {
     const s = S.gsetup, best = store.get('gameBest', 0);
-    const pool = s.src === 'cat' ? QS.filter(q => s.cats.includes(q.cat)).length : s.src === 'std' ? 30 : s.src === 'ai' ? 70 : 100;
+    const pool = s.src === 'cat' ? QS.filter(q => s.cats.includes(q.cat)).length : s.src === 'std' ? N_STD : s.src === 'ai' ? N_AI : N_ALL;
     const n = Math.min(s.count, pool);
-    const src = { all: ['All 100', '全部 100 題'], std: ['Standard 30', '標準 30 題'], ai: ['AI 70', 'AI 生成 70 題'], cat: ['By Category', '依類別'] };
+    const src = { all: [`All ${N_ALL}`, `全部 ${N_ALL} 題`], std: [`Standard ${N_STD}`, `標準 ${N_STD} 題`], ai: [`AI ${N_AI}`, `AI 生成 ${N_AI} 題`], cat: ['By Category', '依類別'] };
     return `<div class="nm">${lanternsHTML()}<div class="wrap"><div class="nm-wrap">
       <div class="nm-intro"><div style="display:grid;gap:12px"><p class="eyebrow">Night Market Challenge</p><h1>資安夜市搶答</h1>
         <p class="muted">每題 ${GAME_SEC} 秒限時作答，你有 3 杯珍奶生命值，答錯或超時就少一杯。答對可以換夜市小吃，連續答對還有加分。正確率達 ${PASS}% 以上，一樣可以拿到通過證明！</p>
@@ -702,9 +704,9 @@
   VIEWS.library = () => {
     const l = S.lib, wbN = Object.keys(store.get('wrong', {})).length;
     return `<div class="wrap page">
-      <div class="page-head"><p class="eyebrow">Knowledge Library</p><h1>知識圖書館</h1><p class="muted">100 題完整題庫：英文題目、專業中文翻譯、中英文解說，以及 ISO/IEC 27001:2022 附錄 A 對應控制措施（中文為常用譯名，正式用語請以國家標準 CNS 27001 為準）。</p></div>
+      <div class="page-head"><p class="eyebrow">Knowledge Library</p><h1>知識圖書館</h1><p class="muted">${N_ALL} 題完整題庫：英文題目、專業中文翻譯、中英文解說，以及 ISO/IEC 27001:2022 附錄 A 對應控制措施（中文為常用譯名，正式用語請以國家標準 CNS 27001 為準）。</p></div>
       <div class="panel lib-tools">
-        <div class="row"><div class="seg">${[['all', '全部 100'], ['std', '標準 30 題'], ['ai', 'AI 生成 70 題']].map(([k, t]) => `<button data-act="lib-src" data-v="${k}" aria-pressed="${l.src === k}">${t}</button>`).join('')}</div></div>
+        <div class="row"><div class="seg">${[['all', `全部 ${N_ALL}`], ['std', `標準 ${N_STD} 題`], ['ai', `AI 生成 ${N_AI} 題`]].map(([k, t]) => `<button data-act="lib-src" data-v="${k}" aria-pressed="${l.src === k}">${t}</button>`).join('')}</div></div>
         <div class="row">${catPicks(l.cats, 'lib-catf')}</div>
         <div class="row"><input class="input" id="lib-q" type="search" placeholder="搜尋題目或選項（中英文皆可），例如：TLS、勒索軟體" value="${esc(l.q)}" style="flex:1 1 280px" aria-label="搜尋題庫">
           <label class="switch"><input type="checkbox" id="lib-wrong" data-act="lib-wrong" ${l.wrong ? 'checked' : ''}>只看錯題本（${wbN}）</label>
@@ -748,7 +750,7 @@
         <div style="display:grid;gap:16px">
           ${ticketHTML(p)}
           <div class="btn-row"><a class="btn btn-line btn-sm" href="#profile">修改資料</a>${PREVIEW ? '' : '<button class="btn btn-text btn-sm" data-act="export">匯出學習紀錄（JSON）</button>'}<button class="btn btn-text btn-sm" data-act="wipe">刪除我的所有資料</button></div>
-          <div style="display:grid;gap:10px"><h3>車站紀念章 ${stampCount()} / 8</h3>
+          <div style="display:grid;gap:10px"><h3>車站紀念章 ${stampCount()} / ${N_ST}</h3>
             <div class="stamp-book">${ROUTE.map(id => `<div class="slot ${qp[id]?.passed ? 'on' : ''}">${stampSVG(id, { inked: !!qp[id]?.passed, date: qp[id]?.at ? ymd(new Date(qp[id].at)) : '', size: 96 })}</div>`).join('')}</div></div>
         </div>
         <div style="display:grid;gap:20px;min-width:0">
@@ -863,7 +865,7 @@
       store.set('quest', qp);
       if (ROUTE.every(id => qp[id]?.passed) && !store.get('grand', null)) {
         const avg = Math.round(ROUTE.reduce((s, id) => s + qp[id].best, 0) / ROUTE.length);
-        res.grand = issueCert({ kind: 'grand', label: { zh: '台灣科技環島 全制霸（8 站全數通過）', en: 'Taiwan Tech Island Quest: all 8 stops completed' }, score: avg, correct: null, total: null, station: null });
+        res.grand = issueCert({ kind: 'grand', label: { zh: `台灣科技環島 全制霸（${N_ST} 站全數通過）`, en: `Taiwan Tech Island Quest: all ${N_ST} stops completed` }, score: avg, correct: null, total: null, station: null });
         store.set('grand', res.grand);
       }
     }
@@ -1049,7 +1051,7 @@
     'start-game': () => {
       const s = S.gsetup, pool = setupIds({ src: s.src, cats: s.cats }), ids = shuffle(pool).slice(0, s.count);
       if (!ids.length) return;
-      const nm = { all: '全部題庫', std: '標準 30 題', ai: 'AI 生成題', cat: ROUTE.filter(id => s.cats.includes(id)).map(id => CAT[id].short).join('、') }[s.src];
+      const nm = { all: '全部題庫', std: `標準 ${N_STD} 題`, ai: 'AI 生成題', cat: ROUTE.filter(id => s.cats.includes(id)).map(id => CAT[id].short).join('、') }[s.src];
       startQuiz({ mode: 'game', label: { zh: `夜市搶答挑戰（${nm}・${ids.length} 題）`, en: `Night Market Challenge (${ids.length} questions)` }, ids, instant: true, shuffleQ: false, shuffleO: true, cert: true, draw: { src: s.src, cats: s.cats.slice(), count: s.count } });
     },
     retry: () => { const z = S.quiz; if (!z) return; const cfg = { ...z.cfg }; if (cfg.draw) cfg.ids = shuffle(setupIds(cfg.draw)).slice(0, cfg.draw.count); startQuiz(cfg); },

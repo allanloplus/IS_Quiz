@@ -1,7 +1,7 @@
 /*
  * Allan'S IT知識測驗 — 題庫以外的設定資料
- * categories：8 大知識領域，每一類對應一個「台灣科技環島」車站
- * route：環島闖關的站序（台北 → 桃園 → 新竹 → 台中 → 彰化 → 日月潭 → 高雄 → 玉山）
+ * categories：9 大知識領域，每一類對應一個「台灣科技環島」車站
+ * route：環島闖關的站序（台北 → 桃園 → 新竹 → 台中 → 彰化 → 日月潭 → 台南 → 高雄 → 玉山）
  * iso：ISO/IEC 27001:2022 附錄 A 控制措施（英文為標準原文，中文為常用譯名）
  * 題目本身在 questions-standard.js 與 questions-ai.js
  */
@@ -78,10 +78,18 @@ window.AIT_DATA = {
         story: "日月潭以拉魯島為界，北半湖形如日輪、南半湖形如月鉤，因而得名。周邊的抽蓄水力電廠在離峰時抽水、尖峰時發電，日夜調節電網。",
         link: "IT服務管理就像日月潭的電廠：7×24日夜不停地維持服務穩定，做好事件、問題、變更與容量管理。"
       }
+    },
+    {
+      id: "ai", zh: "人工智慧與AI治理", en: "Artificial Intelligence & AI Governance", short: "AI", ink: "#5f7d16",
+      station: {
+        label: "台南", city: "台南", spot: "南部科學園區", en: "Southern Taiwan Science Park", lon: 120.21, lat: 22.99, guide: "arale",
+        story: "台南是台灣最早開發的城市，素有「府城」之稱，赤崁樓與安平古堡見證四百年歷史。南部科學園區聚集了先進製程晶圓廠，全球許多 AI 晶片都在這裡誕生。",
+        link: "AI 時代的資安人，不只要會用 AI，更要看得懂 AI 的風險：幻覺、資料外洩、提示注入、資料投毒，以及 ISO/IEC 42001 與 EU AI Act 的治理要求。"
+      }
     }
   ],
 
-  route: ["net", "os", "dev", "db", "cloud", "itsm", "devops", "sec"],
+  route: ["net", "os", "dev", "db", "cloud", "itsm", "ai", "devops", "sec"],
 
   goals: ["很厲害的資安人員", "很厲害的資安顧問", "很厲害的資安稽核員"],
 
@@ -103,6 +111,7 @@ window.AIT_DATA = {
     "5.7": ["Threat intelligence", "威脅情資"],
     "5.8": ["Information security in project management", "專案管理之資訊安全"],
     "5.9": ["Inventory of information and other associated assets", "資訊及其他相關聯資產之清冊"],
+    "5.10": ["Acceptable use of information and other associated assets", "資訊及其他相關聯資產之可接受使用"],
     "5.12": ["Classification of information", "資訊之分類分級"],
     "5.14": ["Information transfer", "資訊傳送"],
     "5.15": ["Access control", "存取控制"],
