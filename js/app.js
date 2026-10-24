@@ -50,8 +50,8 @@
 
   const S = {
     quiz: null, result: null, after: null, modal: null, timer: null, daily: null, certUrl: null, certNo: null,
-    setup: { src: 'std', count: 20, cats: [], instant: true, shuffleQ: false, shuffleO: true },
-    gsetup: { src: 'all', count: 10, cats: [] },
+    setup: { src: 'std', count: 20, cats: [], instant: true, shuffleQ: false, shuffleO: true, practice: false },
+    gsetup: { src: 'all', count: 10, cats: [], practice: false },
     lib: { src: 'all', cats: [], q: '', wrong: false, open: {} },
     reviewFilter: 'all'
   };
@@ -312,9 +312,9 @@
           </div>
           <div class="btn-row">
             ${p ? '<a class="btn btn-ink" href="#quest">繼續環島旅程</a>' : '<a class="btn btn-ink" href="#profile">領取環島車票</a>'}
-            <a class="btn btn-line" href="#classic">直接開始測驗</a>
+            <a class="btn btn-line" href="#practice">免登記練習</a>
           </div>
-          <p class="small muted">${p ? `歡迎回來，${esc(p.name)}。目前已蓋 ${n} / ${N_ST} 枚車站紀念章。` : '講師 Allan顧問、AI 小助理阿拉蕾全程陪你練習。'}</p>
+          <p class="small muted">${p ? `歡迎回來，${esc(p.name)}。目前已蓋 ${n} / ${N_ST} 枚車站紀念章。` : '不想填資料也沒關係：選「免登記練習」，直接作答、看解說，只是不會產生通過證明。'}</p>
         </div>
         <div class="hero-map">${mapSVG()}<img class="allan" src="${img('allan-full')}" alt="Allan顧問">
           <div class="legend"><b>Route 環島路線</b><span>台北101 → 玉山，共 ${N_ST} 站</span></div></div>
@@ -330,7 +330,7 @@
       <section aria-labelledby="h-modes">
         <div class="section-head"><div><p class="eyebrow">Choose your way</p><h2 id="h-modes">選一種方式開始</h2></div></div>
         <div class="modes">
-          <a class="mode" href="#classic"><span class="tag">Classic</span><div><h3>經典測驗</h3><p>傳統一題一題作答，可選即時解說或交卷後檢討。</p></div><span class="go">開始 →</span><img src="${img('allan-point')}" alt=""></a>
+          <a class="mode" href="#classic"><span class="tag">Classic</span><div><h3>經典測驗</h3><p>傳統一題一題作答，可選即時解說或交卷後檢討，也能免登記練習。</p></div><span class="go">開始 →</span><img src="${img('allan-point')}" alt=""></a>
           <a class="mode" href="#quest"><span class="tag">Island Quest</span><div><h3>環島闖關</h3><p>${N_ST} 個車站對應 ${N_ST} 大領域，每站 ≥${PASS} 分才能蓋章前進。</p></div><span class="go">出發 →</span><img src="${img('arale-present')}" alt=""></a>
           <a class="mode mode-night" href="#game"><span class="tag">Night Market</span><div><h3>夜市搶答</h3><p>限時搶答、珍奶生命值、連續答對加分，邊玩邊學。</p></div><span class="go">開吃 →</span><img src="${img('arale-cheer')}" alt=""></a>
           <a class="mode" href="#library"><span class="tag">Library</span><div><h3>知識圖書館</h3><p>${N_ALL} 題完整解說與 ISO 27001 對應，還有你的錯題本。</p></div><span class="go">翻閱 →</span><img src="${img('allan-think')}" alt=""></a>
@@ -370,7 +370,7 @@
         ${d.zh ? `<p class="qzh">${esc(q.qz)}</p>` : ''}
         <div class="opts">${opts}</div>
         ${answered ? `<div class="exp-block"><b>${d.pick === q.a ? '答對了！' : '再想想看'}・Allan 顧問解說</b><p>${esc(q.ez)}</p></div>
-          <div class="btn-row"><button class="btn btn-line btn-sm" data-act="lib-goto" data-id="${q.id}">到知識圖書館看完整解說</button><a class="btn btn-ink btn-sm" href="#classic">挑戰更多題 →</a></div>` : ''}
+          <div class="btn-row"><button class="btn btn-line btn-sm" data-act="lib-goto" data-id="${q.id}">到知識圖書館看完整解說</button><a class="btn btn-ink btn-sm" href="${profile() ? '#classic' : '#practice'}">${profile() ? '挑戰更多題 →' : '免登記練習更多題 →'}</a></div>` : ''}
       </div>`;
   }
 
@@ -445,6 +445,28 @@
     return false;
   }
 
+  /* 練習模式：免車票、不蒐集個人資料、不產生證明 */
+  const practiceLabel = l => ({ zh: `練習模式・${l.zh}`, en: `Practice · ${l.en}` });
+  const catLabel = id => ({ zh: `類別測驗：${CAT[id].zh}`, en: `Category Test: ${CAT[id].en}` });
+  function asPractice(cfg) {
+    if (cfg.practice) return cfg;
+    const base = cfg.station ? catLabel(cfg.station) : cfg.label;
+    return { ...cfg, mode: cfg.mode === 'quest' ? 'classic' : cfg.mode, station: null, practice: true, cert: false, label: practiceLabel(base) };
+  }
+  function modeSwitch(on, act, night) {
+    return `<div class="src-grid" role="group" aria-label="測驗類型">
+      <button class="src" data-act="${act}" data-v="0" aria-pressed="${!on}"><span class="k">Certified test</span><b>正式測驗</b><span>需領取環島車票（填寫基本資料），≥${PASS} 分產生通過證明</span></button>
+      <button class="src" data-act="${act}" data-v="1" aria-pressed="${on}"><span class="k">Practice only</span><b>練習模式（免登記）</b><span>不需車票、不填任何個人資料，只練習與學習，不產生證明</span></button>
+    </div>${on ? `<p class="small ${night ? '' : 'muted'}" style="margin-top:10px">練習模式的成績不會存入學習紀錄；只有答錯的題目會記入這台裝置的錯題本，方便之後複習。</p>` : ''}`;
+  }
+  function askTicket(cfg) {
+    S.pending = cfg;
+    const quest = cfg.mode === 'quest';
+    openModal(`<div class="modal-head"><h2>要先領取環島車票嗎？</h2><button class="icon-btn x" data-act="m-close" aria-label="關閉">${I.close}</button></div>
+      <p class="muted">正式測驗需要填寫基本資料，通過（≥${PASS} 分）後才能產生印有你名字的通過證明${quest ? '，並在車站蓋紀念章' : ''}。如果只想練習，可以改用練習模式，不需填寫任何資料${quest ? '（練習不會蓋章）' : ''}。</p>
+      <div class="btn-row"><button class="btn btn-ink" data-act="m-ticket" autofocus>領取車票，正式測驗</button><button class="btn btn-line" data-act="m-practice">改用練習模式（免登記）</button></div>`);
+  }
+
   /* classic setup */
   const SRC_INFO = {
     std: [`Standard ${N_STD}`, `標準 ${N_STD} 題`, '「IS 專業 30 題」英文原題，附專業中文翻譯'],
@@ -478,10 +500,12 @@
   VIEWS.classic = () => {
     const s = S.setup, n = setupCount(s);
     return `<div class="wrap page">
-      <div class="page-head"><p class="eyebrow">Classic Mode</p><h1>經典測驗</h1><p class="muted">一題一題作答。題目以英文呈現，隨時可按「題目中文說明」看專業中文翻譯；解說與檢討都有中英文。</p></div>
+      <div class="page-head"><p class="eyebrow">Classic Mode</p><h1>經典測驗</h1><p class="muted">一題一題作答。題目以英文呈現，隨時可按「題目中文說明」看專業中文翻譯；解說與檢討都有中英文。不想填資料的話，選「練習模式」就能直接開始。</p></div>
       <div class="setup">
         <div class="panel">
-          <h3>選擇題庫</h3>
+          <h3>測驗類型</h3>
+          <div style="margin-top:12px">${modeSwitch(s.practice, 'set-practice')}</div>
+          <div class="opt-block"><h3>選擇題庫</h3></div>
           <div class="src-grid" style="margin-top:12px">${Object.entries(SRC_INFO).map(([k, [en, zh, d]]) => `<button class="src" data-act="set-src" data-v="${k}" aria-pressed="${s.src === k}"><span class="k">${en}</span><b>${zh}</b><span>${d}</span></button>`).join('')}</div>
           ${s.src === 'random' ? `<div class="opt-block"><h3>題數</h3><div class="seg">${[10, 20, 30, 50, 100].map(c => `<button data-act="set-count" data-v="${c}" aria-pressed="${s.count === c}">${c} 題</button>`).join('')}</div></div>` : ''}
           ${s.src === 'cat' ? `<div class="opt-block"><h3>選擇類別（可複選）</h3>${catPicks(s.cats, 'set-cat')}</div>` : ''}
@@ -495,12 +519,12 @@
           </div>
         </div>
         <aside class="panel summary-card">
-          <p class="eyebrow">This test 本次測驗</p>
+          <p class="eyebrow">${s.practice ? 'Practice 本次練習' : 'This test 本次測驗'}</p>
           <div><span class="big">${n}</span> <span class="muted">題</span></div>
           <ul><li>題庫：${esc(SRC_INFO[s.src][1])}${s.src === 'cat' && s.cats.length ? `（${s.cats.map(id => CAT[id].short).join('、')}）` : ''}</li><li>作答方式：${s.instant ? '即時解說' : '交卷後檢討'}</li><li>預估時間：約 ${Math.max(5, Math.round(n * 1.2))} 分鐘</li></ul>
-          <div class="rule"><b>≥${PASS}</b><span>分才通過，通過後產生含測驗日期的通過證明。</span></div>
-          <button class="btn btn-ink" data-act="start-classic" ${n ? '' : 'disabled'}>${n ? '開始測驗' : '請先選擇類別'}</button>
-          ${profile() ? '' : '<p class="small muted">開始前需要先領取環島車票（填寫基本資料），通過證明才印得出你的名字。</p>'}
+          ${s.practice ? '<div class="rule practice"><b>免登記</b><span>不需車票、不填個人資料，也不產生通過證明。</span></div>' : `<div class="rule"><b>≥${PASS}</b><span>分才通過，通過後產生含測驗日期的通過證明。</span></div>`}
+          <button class="btn btn-ink" data-act="start-classic" ${n ? '' : 'disabled'}>${!n ? '請先選擇類別' : s.practice ? '開始練習' : '開始測驗'}</button>
+          ${s.practice || profile() ? '' : '<p class="small muted">正式測驗需要先領取環島車票（填寫基本資料），通過證明才印得出你的名字。</p>'}
         </aside>
       </div></div>`;
   };
@@ -536,7 +560,7 @@
         <div class="txt"><h2>${i + 1}. ${esc(st.label)}</h2><div class="qmeta">${catChip(id)}<span class="chip">${countCat(id)} 題（標準 ${countCat(id, 'std')}／AI ${countCat(id, 'ai')}）</span>${r.best != null ? `<span class="chip">最佳成績 ${r.best}</span>` : ''}</div>
           <p class="story">${esc(st.story)}</p><p class="link">${esc(st.link)}</p>
           <p class="small muted">本站採即時解說模式，答對 ${PASS}% 以上即可蓋章並取得本站通過證明。</p>
-          <div class="btn-row"><button class="btn btn-ink" data-act="start-station" data-id="${id}" autofocus>出發！開始本站測驗</button><button class="btn btn-line" data-act="lib-cat" data-id="${id}">先到圖書館複習</button></div></div>
+          <div class="btn-row"><button class="btn btn-ink" data-act="start-station" data-id="${id}" autofocus>出發！開始本站測驗</button><button class="btn btn-line" data-act="practice-station" data-id="${id}">免登記練習本站（不蓋章）</button><button class="btn btn-text" data-act="lib-cat" data-id="${id}">先到圖書館複習</button></div></div>
       </div>`, { wide: true });
   }
 
@@ -548,16 +572,18 @@
     const src = { all: [`All ${N_ALL}`, `全部 ${N_ALL} 題`], std: [`Standard ${N_STD}`, `標準 ${N_STD} 題`], ai: [`AI ${N_AI}`, `AI 生成 ${N_AI} 題`], cat: ['By Category', '依類別'] };
     return `<div class="nm">${lanternsHTML()}<div class="wrap"><div class="nm-wrap">
       <div class="nm-intro"><div style="display:grid;gap:12px"><p class="eyebrow">Night Market Challenge</p><h1>資安夜市搶答</h1>
-        <p class="muted">每題 ${GAME_SEC} 秒限時作答，你有 3 杯珍奶生命值，答錯或超時就少一杯。答對可以換夜市小吃，連續答對還有加分。正確率達 ${PASS}% 以上，一樣可以拿到通過證明！</p>
+        <p class="muted">每題 ${GAME_SEC} 秒限時作答，你有 3 杯珍奶生命值，答錯或超時就少一杯。答對可以換夜市小吃，連續答對還有加分。正式挑戰的正確率達 ${PASS}% 以上，一樣可以拿到通過證明；只想玩玩看，就選練習模式。</p>
         <p class="small">最高分紀錄：<b class="num" style="color:var(--nm-gold)">${best}</b> 分</p></div>
         <img src="${img('arale-cheer')}" alt="阿拉蕾"></div>
       <div class="panel">
-        <h3>選擇攤位（題庫）</h3>
+        <h3>挑戰類型</h3>
+        <div style="margin-top:12px">${modeSwitch(s.practice, 'g-practice', true)}</div>
+        <div class="opt-block"><h3>選擇攤位（題庫）</h3></div>
         <div class="src-grid" style="margin-top:12px">${Object.entries(src).map(([k, [en, zh]]) => `<button class="src" data-act="g-src" data-v="${k}" aria-pressed="${s.src === k}"><span class="k">${en}</span><b>${zh}</b></button>`).join('')}</div>
         ${s.src === 'cat' ? `<div class="opt-block"><h3>選擇類別（可複選）</h3>${catPicks(s.cats, 'g-cat')}</div>` : ''}
         <div class="opt-block"><h3>題數</h3><div class="seg">${[10, 20, 30].map(c => `<button data-act="g-count" data-v="${c}" aria-pressed="${s.count === c}">${c} 題</button>`).join('')}</div>
           ${pool < s.count ? `<p class="small muted">此題庫只有 ${pool} 題，將全部出題。</p>` : ''}</div>
-        <div class="btn-row" style="margin-top:20px"><button class="btn btn-sun" data-act="start-game" ${n ? '' : 'disabled'}>${n ? `開吃！挑戰 ${n} 題` : '請先選擇類別'}</button></div>
+        <div class="btn-row" style="margin-top:20px"><button class="btn btn-sun" data-act="start-game" ${n ? '' : 'disabled'}>${!n ? '請先選擇類別' : s.practice ? `開吃！練習 ${n} 題` : `開吃！挑戰 ${n} 題`}</button></div>
       </div></div></div></div>`;
   };
 
@@ -572,7 +598,7 @@
         <div id="qbody"></div></div></div></div>`;
     }
     return `<div class="wrap"><div class="quiz">
-      <div class="quiz-top"><div class="title">${esc(z.cfg.label.zh)}<small>${esc(z.cfg.label.en)}${z.cfg.instant ? '・即時解說' : '・考試模式'}</small></div><span class="spacer"></span><button class="btn btn-line btn-sm" data-act="quit">離開測驗</button></div>
+      <div class="quiz-top"><div class="title">${esc(z.cfg.label.zh)}<small>${esc(z.cfg.label.en)}${z.cfg.instant ? '・即時解說' : '・考試模式'}${z.cfg.practice ? '・免登記' : ''}</small></div><span class="spacer"></span><button class="btn btn-line btn-sm" data-act="quit">離開測驗</button></div>
       <div id="qtrack"></div><div id="qbody"></div></div></div>`;
   };
   AFTER.quiz = () => { renderQ(); if (S.quiz.game && S.quiz.items[S.quiz.idx].pick === null) startTimer(); };
@@ -671,7 +697,8 @@
             <button class="btn btn-line" data-act="retry">再挑戰一次</button>${back}
           </div>
           ${g && g.snacks.length ? `<div style="display:grid;gap:6px"><span class="small muted">夜市戰利品</span><div class="tray" style="--nm-bg-2:var(--surface-2);--nm-line:var(--line)">${g.snacks.map(([e, n]) => `<span>${e} ${n}</span>`).join('')}</div></div>` : ''}
-          ${r.cfgCert === false ? '<p class="small muted">錯題重練不產生通過證明；回到經典測驗、環島闖關或夜市搶答，就能挑戰證明。</p>' : ''}
+          ${r.practice ? `<div class="rule practice"><b>練習</b><span>練習模式不產生通過證明，成績也不會存入學習紀錄。${pass ? '這個成績已經達到門檻，' : ''}想取得證明，${profile() ? '改用正式測驗挑戰即可。' : '領取環島車票後改用正式測驗挑戰。'}</span></div>
+            <div class="btn-row">${profile() ? '<button class="btn btn-line btn-sm" data-act="to-formal">改用正式測驗</button>' : '<a class="btn btn-line btn-sm" href="#profile">領取環島車票</a>'}</div>` : ''}
         </div>
         <div class="chars">${stamp}</div>
       </section>
@@ -765,7 +792,7 @@
 
   /* ── 測驗引擎 ───────────────────────────── */
   function startQuiz(cfg) {
-    if (!profile()) { requireProfile(() => startQuiz(cfg)); return; }
+    if (!cfg.practice && !profile()) { askTicket(cfg); return; }
     const list = cfg.shuffleQ ? shuffle(cfg.ids) : cfg.ids.slice();
     S.quiz = {
       cfg, idx: 0, t0: Date.now(), done: false,
@@ -869,10 +896,13 @@
         store.set('grand', res.grand);
       }
     }
-    if (pass && z.cfg.cert !== false) res.cert = issueCert({ kind: z.cfg.mode, label: z.cfg.label, score, correct, total, station: z.cfg.station });
-    const h = store.get('history', []);
-    h.unshift({ id: res.id, at: res.at, mode: res.mode, label: res.label.zh, total, correct, score, pass, dur: res.dur, cert: res.cert });
-    store.set('history', h.slice(0, 60));
+    if (pass && z.cfg.cert !== false && !z.cfg.practice) res.cert = issueCert({ kind: z.cfg.mode, label: z.cfg.label, score, correct, total, station: z.cfg.station });
+    res.practice = !!z.cfg.practice;
+    if (!res.practice) {
+      const h = store.get('history', []);
+      h.unshift({ id: res.id, at: res.at, mode: res.mode, label: res.label.zh, total, correct, score, pass, dur: res.dur, cert: res.cert });
+      store.set('history', h.slice(0, 60));
+    }
     S.result = res;
     go('result');
   }
@@ -980,7 +1010,7 @@
   }
 
   /* ── 路由 ───────────────────────────── */
-  const ROUTES = ['home', 'profile', 'classic', 'quest', 'game', 'library', 'me', 'quiz', 'result'];
+  const ROUTES = ['home', 'profile', 'classic', 'practice', 'quest', 'game', 'library', 'me', 'quiz', 'result'];
   const viewName = () => { const h = location.hash.slice(1); return ROUTES.includes(h) ? h : 'home'; };
   function go(v) { if (viewName() === v && location.hash) render(); else location.hash = v; }
   function navKey(v) {
@@ -991,6 +1021,7 @@
   function render() {
     stopTimer();
     let v = viewName();
+    if (v === 'practice') { if (S.lastHash !== 'practice') S.setup.practice = true; v = 'classic'; try { history.replaceState(null, '', '#classic'); } catch (e) { /* sandboxed */ } }
     if (v === 'quiz' && S.quiz && S.quiz.done) v = S.result ? 'result' : 'home';
     if (v === 'quiz' && !S.quiz) v = 'home';
     if (v === 'result' && !S.result) v = 'home';
@@ -1002,6 +1033,7 @@
     $$('[data-nav]').forEach(a => { if (a.dataset.nav === k) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
     updateWho();
     if (AFTER[v]) AFTER[v]();
+    S.lastHash = viewName();
     window.scrollTo(0, 0);
   }
   function updateWho() {
@@ -1016,6 +1048,12 @@
   const ACT = {
     'm-close': () => closeModal(),
     'm-ok': () => { const r = S.modal && S.modal.resolve; closeModal(true); if (r) r(true); },
+    'm-ticket': () => { const cfg = S.pending; S.pending = null; closeModal(true); requireProfile(() => startQuiz(cfg)); },
+    'm-practice': () => { const cfg = S.pending; S.pending = null; closeModal(true); startQuiz(asPractice(cfg)); },
+    'set-practice': el => { S.setup.practice = el.dataset.v === '1'; rerender(); },
+    'g-practice': el => { S.gsetup.practice = el.dataset.v === '1'; rerender(); },
+    'to-formal': () => { const m = S.result && S.result.mode; if (m === 'game') { S.gsetup.practice = false; go('game'); } else { S.setup.practice = false; go('classic'); } },
+    'practice-station': el => { const id = el.dataset.id; startQuiz({ mode: 'classic', practice: true, cert: false, label: practiceLabel(catLabel(id)), ids: idsBy(q => q.cat === id), instant: true, shuffleQ: true, shuffleO: true }); },
     theme: () => { theme = THEME_NEXT[theme]; store.set('theme', theme); applyTheme(theme); toast(`配色：${THEME_LABEL[theme]}`); },
     quit: () => { const m = S.quiz && S.quiz.cfg.mode; confirmLeave(m === 'quest' ? 'quest' : m === 'game' ? 'game' : 'classic'); },
     pick: el => pick(+el.dataset.i),
@@ -1038,7 +1076,8 @@
     'start-classic': () => {
       const s = S.setup, ids = setupIds(s);
       if (!ids.length) return;
-      startQuiz({ mode: 'classic', label: setupLabel(s, ids.length), ids, instant: s.instant, shuffleQ: s.src === 'random' ? false : s.shuffleQ, shuffleO: s.shuffleO, cert: true, draw: s.src === 'random' ? { src: 'random', count: s.count } : null });
+      const label = setupLabel(s, ids.length);
+      startQuiz({ mode: 'classic', label: s.practice ? practiceLabel(label) : label, practice: s.practice, ids, instant: s.instant, shuffleQ: s.src === 'random' ? false : s.shuffleQ, shuffleO: s.shuffleO, cert: !s.practice, draw: s.src === 'random' ? { src: 'random', count: s.count } : null });
     },
     station: el => stationModal(el.dataset.id),
     'start-station': el => {
@@ -1052,11 +1091,12 @@
       const s = S.gsetup, pool = setupIds({ src: s.src, cats: s.cats }), ids = shuffle(pool).slice(0, s.count);
       if (!ids.length) return;
       const nm = { all: '全部題庫', std: `標準 ${N_STD} 題`, ai: 'AI 生成題', cat: ROUTE.filter(id => s.cats.includes(id)).map(id => CAT[id].short).join('、') }[s.src];
-      startQuiz({ mode: 'game', label: { zh: `夜市搶答挑戰（${nm}・${ids.length} 題）`, en: `Night Market Challenge (${ids.length} questions)` }, ids, instant: true, shuffleQ: false, shuffleO: true, cert: true, draw: { src: s.src, cats: s.cats.slice(), count: s.count } });
+      const label = { zh: `夜市搶答挑戰（${nm}・${ids.length} 題）`, en: `Night Market Challenge (${ids.length} questions)` };
+      startQuiz({ mode: 'game', label: s.practice ? practiceLabel(label) : label, practice: s.practice, ids, instant: true, shuffleQ: false, shuffleO: true, cert: !s.practice, draw: { src: s.src, cats: s.cats.slice(), count: s.count } });
     },
     retry: () => { const z = S.quiz; if (!z) return; const cfg = { ...z.cfg }; if (cfg.draw) cfg.ids = shuffle(setupIds(cfg.draw)).slice(0, cfg.draw.count); startQuiz(cfg); },
-    'retry-wrong': () => { const ids = S.result.items.filter(i => !i.ok).map(i => i.id); startQuiz({ mode: 'classic', label: { zh: '錯題重練', en: 'Review Practice' }, ids, instant: true, shuffleQ: true, shuffleO: true, cert: false }); },
-    'wrong-practice': () => { const ids = Object.keys(store.get('wrong', {})).filter(id => QB[id]); if (!ids.length) return; startQuiz({ mode: 'classic', label: { zh: '錯題本重練', en: 'Review Practice' }, ids, instant: true, shuffleQ: true, shuffleO: true, cert: false }); },
+    'retry-wrong': () => { const ids = S.result.items.filter(i => !i.ok).map(i => i.id); startQuiz({ mode: 'classic', label: { zh: '錯題重練', en: 'Review Practice' }, ids, instant: true, shuffleQ: true, shuffleO: true, cert: false, practice: true }); },
+    'wrong-practice': () => { const ids = Object.keys(store.get('wrong', {})).filter(id => QB[id]); if (!ids.length) return; startQuiz({ mode: 'classic', label: { zh: '錯題本重練', en: 'Review Practice' }, ids, instant: true, shuffleQ: true, shuffleO: true, cert: false, practice: true }); },
     'rv-filter': el => { S.reviewFilter = el.dataset.v; rerender(); },
     cert: el => openCert(el.dataset.no),
     'cert-dl': () => { if (!S.certUrl) return; const a = document.createElement('a'); a.href = S.certUrl; a.download = `${S.certNo}.png`; document.body.appendChild(a); a.click(); a.remove(); },

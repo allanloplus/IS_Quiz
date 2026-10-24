@@ -368,6 +368,10 @@ main { display: block; }
 .summary-card ul { margin: 0; padding-left: 18px; color: var(--ink-2); font-size: 14px; display: grid; gap: 4px; }
 .rule { display: flex; gap: 10px; align-items: center; padding: 12px 14px; border-radius: var(--r-m); background: color-mix(in srgb, var(--stamp) 8%, var(--surface)); color: var(--ink); font-size: 14px; border: 1px solid color-mix(in srgb, var(--stamp) 25%, transparent); }
 .rule b { font: 700 22px/1 var(--f-tech); color: var(--stamp); }
+.rule.practice { background: color-mix(in srgb, var(--teal) 9%, var(--surface)); border-color: color-mix(in srgb, var(--teal) 30%, transparent); }
+.rule.practice b { color: var(--teal); font-family: var(--f-display); font-weight: 400; white-space: nowrap; }
+.nm .rule.practice { background: rgb(94 224 179 / .1); border-color: rgb(94 224 179 / .35); color: var(--nm-text); }
+.nm .rule.practice b { color: var(--nm-mint); }
 
 /* ── Quiz ───────────────────────────── */
 .quiz { padding-block: 20px 72px; display: grid; gap: 18px; max-width: 920px; margin: 0 auto; }
@@ -468,11 +472,11 @@ main { display: block; }
 .stat-row span { font-size: 13px; color: var(--ink-3); }
 @media (max-width: 900px) { .result-hero { grid-template-columns: 1fr; text-align: center; justify-items: center; } .stat-row, .result-hero .btn-row { justify-content: center; } .result-hero .chars img { height: 140px; } }
 .bars { display: grid; gap: 12px; }
-.bar { display: grid; grid-template-columns: 180px minmax(0, 1fr) 72px; gap: 14px; align-items: center; font-size: 14px; }
+.bar { display: grid; grid-template-columns: 180px minmax(0, 1fr) 110px; gap: 14px; align-items: center; font-size: 14px; }
 .bar .track2 { height: 12px; border-radius: 6px; background: var(--surface-2); border: 1px solid var(--line-2); overflow: hidden; }
 .bar .track2 i { display: block; height: 100%; background: var(--cc); border-radius: 6px; }
-.bar .pct { font: 600 14px var(--f-tech); text-align: right; font-variant-numeric: tabular-nums; }
-@media (max-width: 560px) { .bar { grid-template-columns: minmax(0, 1fr) 64px; } .bar .track2 { grid-column: 1 / -1; grid-row: 2; } }
+.bar .pct { font: 600 14px var(--f-tech); text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+@media (max-width: 560px) { .bar { grid-template-columns: minmax(0, 1fr) auto; } .bar .track2 { grid-column: 1 / -1; grid-row: 2; } }
 
 .review { display: grid; gap: 10px; }
 .review details { border: 1px solid var(--line); border-radius: var(--r-m); background: var(--surface); }
