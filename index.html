@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Allan'S IT知識測驗</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="給 ISMS 從業人員、資安顧問與稽核員的 IT 基本知識測驗與學習網站：100 題中英雙語題庫、8 大知識領域、台灣科技環島闖關、夜市搶答，≥90 分產生通過證明。">
+<meta name="theme-color" content="#15223d">
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Huninn&family=JetBrains+Mono:wght@500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="#home" aria-label="Allan'S IT知識測驗 首頁">
+      <img src="assets/img/allan-smile.webp" alt="">
+      <span><b>Allan'S IT知識測驗</b><small>IT Knowledge Quest</small></span>
+    </a>
+    <nav class="nav" aria-label="主選單">
+      <a href="#home" data-nav="home">首頁</a>
+      <a href="#classic" data-nav="classic">經典測驗</a>
+      <a href="#quest" data-nav="quest">環島闖關</a>
+      <a href="#game" data-nav="game">夜市搶答</a>
+      <a href="#library" data-nav="library">知識圖書館</a>
+      <a href="#me" data-nav="me">我的學習</a>
+    </nav>
+    <div class="top-actions">
+      <button class="icon-btn" id="theme-btn" data-act="theme" type="button" aria-label="切換配色"></button>
+      <a class="who" id="who" href="#profile">領取車票</a>
+    </div>
+  </div>
+</header>
+
+<main id="app" aria-live="polite"></main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>© Allan'S IT知識測驗・講師 Allan顧問・AI 小助理 阿拉蕾</span>
+    <span>學習資料僅保存在您的瀏覽器中。ISO/IEC 27001:2022 控制措施中文為常用譯名，正式用語請以 CNS 27001 為準。</span>
+  </div>
+</footer>
+
+<nav class="tabbar" aria-label="主選單（行動版）">
+  <a href="#home" data-nav="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>首頁</a>
+  <a href="#classic" data-nav="classic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8l1.5 1.5L12 7M8 14l1.5 1.5L12 13M14 8h3M14 14h3"/></svg>測驗</a>
+  <a href="#quest" data-nav="quest"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h6a4 4 0 0 0 0-8h-4a4 4 0 0 1 0-8h6"/></svg>闖關</a>
+  <a href="#game" data-nav="game"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v2M9 4h6"/><ellipse cx="12" cy="12" rx="7" ry="7.5"/><path d="M12 4.5v15M8 6c-2 4-2 8 0 12M16 6c2 4 2 8 0 12M9 20h6M12 20v2"/></svg>夜市</a>
+  <a href="#library" data-nav="library"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h6a3 3 0 0 1 2 1 3 3 0 0 1 2-1h6v15h-6a2 2 0 0 0-2 2 2 2 0 0 0-2-2H4z"/><path d="M12 5v16"/></svg>圖書館</a>
+  <a href="#me" data-nav="me"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>我的</a>
+</nav>
+
+<script src="js/data.js"></script>
+<script src="js/questions-standard.js"></script>
+<script src="js/questions-ai.js"></script>
+<script src="js/map.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
